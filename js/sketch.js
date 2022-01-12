@@ -107,6 +107,47 @@ window.onload = function () {
     lastChoice = svgChoice;
   }
 
+  // WIP SVG
+  const svgWipUrl = 'assets/WIP.svg';
+  var svgWipGroup = new paper.Group();
+
+  const wipSvgs = project.importSVG(svgWipUrl, {
+    expandShapes: true,
+    onLoad: function (item) {
+      item.visible = true;
+      svgWipGroup.addChild(item);
+    },
+    onError: console.log('something went wrong importing'),
+  });
+
+  const checkWipSvgLoadedTimer = setInterval(checkWipSvgLoaded, 100);
+
+  function checkWipSvgLoaded() {
+    if (svgWipGroup.children.length > 0) {
+      console.log('Done importing WiP svg');
+
+      clearInterval(checkWipSvgLoadedTimer);
+
+      var groupHeight =
+        svgWipGroup.bounds.bottomLeft.y - svgWipGroup.bounds.topLeft.y;
+
+      var scaleFactor = (paper.view.bounds.height - 40) / groupHeight;
+
+      // Position and Scale Group
+      svgWipGroup.scale(scaleFactor, svgWipGroup.bounds.topLeft);
+      // svgWipGroup.bounds.topRight = paper.view.bounds.width - 20;
+      svgWipGroup.translate(
+        svgWipGroup.localToParent(
+          paper.view.bounds.width -
+            svgWipGroup.bounds.topRight.x -
+            svgWipGroup.bounds.topLeft.x -
+            40,
+          20
+        )
+      );
+    }
+  }
+
   // now draw
   paper.view.draw();
 
