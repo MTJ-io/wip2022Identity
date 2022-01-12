@@ -9,7 +9,7 @@ window.onload = function () {
   // Get a reference to the canvas object
   var canvas = document.getElementById('myCanvas');
   canvas.width = window.innerWidth;
-  canvas.height = window.innerWidth * (8 / 16);
+  canvas.height = window.innerWidth * (4 / 16);
 
   paper.view.viewSize = new paper.Size(canvas.width, canvas.height);
 
@@ -50,15 +50,15 @@ window.onload = function () {
   let numberSVGsLoaded = 0;
 
   let lastChoice = -1;
-
+  let svgs = [];
   for (var i = 0; i < svgUrls.length; i++) {
-    var svgGroup = new paper.Group();
+    var svg2022Group = new paper.Group();
 
-    var svg = project.importSVG(svgUrls[i], {
+    svgs[i] = project.importSVG(svgUrls[i], {
       expandShapes: true,
       onLoad: function (item) {
         item.visible = false;
-        svgGroup.addChild(item);
+        svg2022Group.addChild(item);
         numberSVGsLoaded += 1;
       },
       onError: console.log('something went wrong importing'),
@@ -74,22 +74,36 @@ window.onload = function () {
       clearInterval(checkLoadedTimer);
 
       // Randomly choose first item
-      var svgChoice = Math.floor(Math.random() * svgGroup.children.length);
+      var svgChoice = Math.floor(Math.random() * svg2022Group.children.length);
       lastChoice = svgChoice;
-      svgGroup.children[svgChoice].visible = true;
+      svg2022Group.children[svgChoice].visible = true;
+      // svgs[svgChoice].scale(2);
+
+      var groupHeight =
+        svg2022Group.bounds.bottomLeft.y - svg2022Group.bounds.topLeft.y;
+
+      var scaleFactor = (paper.view.bounds.height - 40) / groupHeight;
+
+      console.log('groupHeight ', groupHeight);
+      console.log('canvas.height ', paper.view.bounds.height);
+      console.log('scaleFactor ', scaleFactor);
+
+      // Position and Scale Group
+      svg2022Group.scale(scaleFactor, svg2022Group.bounds.topLeft);
+      svg2022Group.translate(svg2022Group.localToParent(20, 20));
 
       // Start Animation
-      const animationTimer = setInterval(animationUpdate, 500);
+      const animationTimer = setInterval(animationUpdate, 750);
     }
   }
 
   function animationUpdate() {
-    var svgChoice = Math.floor(Math.random() * svgGroup.children.length);
+    var svgChoice = Math.floor(Math.random() * svg2022Group.children.length);
     while (lastChoice === svgChoice) {
-      svgChoice = Math.floor(Math.random() * svgGroup.children.length);
+      svgChoice = Math.floor(Math.random() * svg2022Group.children.length);
     }
-    svgGroup.children[lastChoice].visible = false;
-    svgGroup.children[svgChoice].visible = true;
+    svg2022Group.children[lastChoice].visible = false;
+    svg2022Group.children[svgChoice].visible = true;
     lastChoice = svgChoice;
   }
 
@@ -102,7 +116,7 @@ window.onload = function () {
   function resizeCanvas() {
     // store new view width/height
     canvas.width = window.innerWidth;
-    canvas.height = window.innerWidth * (8 / 16);
+    canvas.height = window.innerWidth * (4 / 16);
 
     paper.view.viewSize = new paper.Size(canvas.width, canvas.height);
     background.point = [0, 0];
